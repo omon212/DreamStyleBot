@@ -3,6 +3,8 @@ from aiogram.dispatcher.filters.builtin import CommandStart
 from keyboards.default.btn import btn
 from loader import dp
 from states.user_state import UserState
+from utils.databace import check_user
+
 
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
@@ -13,6 +15,6 @@ Hello, please choose your language 🇺🇸
 
 Привет, пожалуйста, выберите ваш язык 🇷🇺
     """,reply_markup=btn)
-    await UserState.kanal_follow.set()
+    await UserState.language.set()
 
 
