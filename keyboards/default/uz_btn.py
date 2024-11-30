@@ -8,3 +8,15 @@ phone_number_uz = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True
 )
+
+menu_btn_uz = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="Tavsiya qilmoq 📝")
+        ],
+        [
+            KeyboardButton(text="Sozlamalar ⚙️")
+        ]
+    ],
+    resize_keyboard=True
+)
