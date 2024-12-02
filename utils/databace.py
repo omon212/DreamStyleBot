@@ -28,8 +28,10 @@ async def save_language(user_id, language):
 
     if user_exists:
         cursor.execute("UPDATE users SET language = ? WHERE user_id = ?", (language, user_id))
+        return user_exists
     else:
         cursor.execute("INSERT INTO users (user_id, language) VALUES (?, ?)", (user_id, language))
+        return None
     connect.commit()
 
 

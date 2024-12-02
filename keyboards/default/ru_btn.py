@@ -14,8 +14,14 @@ menu_btn_ru = ReplyKeyboardMarkup(
         [
             KeyboardButton(text="Рекомендовать 📝")
         ],
+    ],
+    resize_keyboard=True
+)
+
+orqaga_btn_ru = ReplyKeyboardMarkup(
+    keyboard=[
         [
-            KeyboardButton(text="Настройки ⚙️")
+            KeyboardButton(text="Назад 🔙")
         ]
     ],
     resize_keyboard=True

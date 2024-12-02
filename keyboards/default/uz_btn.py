@@ -14,9 +14,6 @@ menu_btn_uz = ReplyKeyboardMarkup(
         [
             KeyboardButton(text="Tavsiya qilmoq 📝")
         ],
-        [
-            KeyboardButton(text="Sozlamalar ⚙️")
-        ]
     ],
     resize_keyboard=True
 )

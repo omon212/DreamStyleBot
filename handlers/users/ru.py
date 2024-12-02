@@ -1,12 +1,11 @@
-from aiogram import types
-from loader import dp, bot
-from states.user_state import UserState
+import types
+
 from keyboards.default.ru_btn import *
 from keyboards.inline.ru_btn import *
 from aiogram.dispatcher import FSMContext
 from data.config import *
 from utils.databace import *
-from .start import check_subscription
+from .start import *
 
 
 @dp.message_handler(text="Русский 🇷🇺", state=UserState.language)
@@ -35,3 +34,49 @@ async def set_phone_number(message: types.Message, state: FSMContext):
     await message.answer("Вы успешно зарегистрировались ✅", reply_markup=types.ReplyKeyboardRemove())
     await message.answer("Выбирать:", reply_markup=menu_btn_ru)
     await state.finish()
+
+
+@dp.message_handler(text="Рекомендовать 📝")
+async def set_tavsiya_qilmoq(message: types.Message):
+    try:
+        del fake_data[message.from_user.id]
+    except:
+        pass
+    await message.answer("Отправьте фото цены, которую хотите порекомендовать 📸",
+                         reply_markup=types.ReplyKeyboardRemove())
+    await UserState.tavsiya_qilmoq_photo_ru.set()
+    await record_stat(message.from_user.id)
+
+
+@dp.message_handler(state=UserState.tavsiya_qilmoq_photo_ru, content_types=types.ContentType.PHOTO)
+async def set_tavsiya_qilmoq_photo(message: types.Message, state: FSMContext):
+    if message.from_user.id not in fake_data:
+        fake_data[message.from_user.id] = {}
+    fake_data[message.from_user.id]["photo_id"] = message.photo[-1].file_id
+    await message.answer("Отправленное вами изображение принято. ✅")
+    await message.answer("Теперь отправьте текст для изображения 📝", reply_markup=types.ReplyKeyboardRemove())
+    await UserState.tavsiya_qilmoq_text_ru.set()
+
+@dp.message_handler(state=UserState.tavsiya_qilmoq_text_ru, content_types=types.ContentType.TEXT)
+async def set_tavsiya_qilmoq_text_ru(message: types.Message, state: FSMContext):
+    await message.answer("Ваша рекомендация принята ✅\n\nВаше мнение очень важно для нас!☺️")
+    user_data = await check_user(message.from_user.id)
+    username = ""
+    if user_data[3] == None:
+        username = "Имя пользователя не существует"
+    else:
+        username = user_data[3]
+    caption = f"""
+<code>Информация о клиенте 👤:</code>
+
+<b>Имя:</b> {user_data[2]}
+<b>Имя пользователя:</b> @{username}
+<b>Номер телефона:</b> +{user_data[4]}
+
+<b>{message.text}</b>
+"""
+    await bot.send_photo(chat_id=GROUP_ID, photo=fake_data[message.from_user.id]["photo_id"], caption=caption)
+    await message.answer("Выберите:", reply_markup=menu_btn_ru)
+    await state.finish()
+
+

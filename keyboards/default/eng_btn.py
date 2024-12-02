@@ -13,9 +13,6 @@ menu_btn_eng = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text="Recommend 📝")
-        ],
-        [
-            KeyboardButton(text="Settings ⚙️")
         ]
     ],
     resize_keyboard=True

@@ -1,12 +1,9 @@
-from aiogram import types
-from loader import dp, bot
-from states.user_state import UserState
 from keyboards.default.eng_btn import *
 from keyboards.inline.eng_btn import *
 from aiogram.dispatcher import FSMContext
 from data.config import *
 from utils.databace import *
-from .start import check_subscription
+from .start import *
 
 
 @dp.message_handler(text="English 🇺🇸", state=UserState.language)
@@ -34,4 +31,42 @@ async def set_phone_number(message: types.Message, state: FSMContext):
                          message.contact.phone_number)
     await message.answer("You have successfully registered ✅", reply_markup=types.ReplyKeyboardRemove())
     await message.answer("Choose:", reply_markup=menu_btn_eng)
+    await state.finish()
+
+
+@dp.message_handler(text="Recommend 📝")
+async def set_recomand(message: types.Message):
+    await message.answer("Send a picture of the price you want to recommend 📸",
+                         reply_markup=types.ReplyKeyboardRemove())
+    await UserState.tavsiya_qilmoq_eng.set()
+    await record_stat(message.from_user.id)
+
+
+@dp.message_handler(state=UserState.tavsiya_qilmoq_eng, content_types=types.ContentType.PHOTO)
+async def set_tavsiya_qilmoq_photo(message: types.Message, state: FSMContext):
+    fake_data[message.from_user.id]["photo_id"] = message.photo[-1].file_id
+    await message.answer("The picture you sent has been accepted ✅")
+    await message.answer("Now send text for picture 📝")
+
+
+@dp.message_handler(state=UserState.tavsiya_qilmoq_eng, content_types=types.ContentType.TEXT)
+async def set_tavsiya_qilmoq_text(message: types.Message, state: FSMContext):
+    await message.answer("Your recommendation has been accepted✅\n\nYour opinion is very important to us!☺️")
+    user_data = await check_user(message.from_user.id)
+    username = ""
+    if user_data[3] == None:
+        username = ""
+    else:
+        username = user_data[3]
+    caption = f"""
+<code>Mijozning ma'lumotlari 👤:</code>
+
+<b>Ismi:</b> {user_data[2]}
+<b>Username:</b> @{username}
+<b>Telefon raqami:</b> +{user_data[4]}
+
+<b>{message.text}</b>
+"""
+    await bot.send_photo(chat_id=GROUP_ID, photo=fake_data[message.from_user.id]["photo_id"], caption=caption)
+    await message.answer("Chooce:", reply_markup=menu_btn_eng)
     await state.finish()
